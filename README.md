@@ -26,5 +26,5 @@ Para utilizar el programa será tan facíl como: `gitple <command>`
 En caso de necesitar ayuda con algún comando utilice la flag `-h` | `--help`
 
 ### Dependencias
-Para utilizar ciertas funciones del programa es necesario instalar los paquetes curl y jq.
+Para utilizar ciertas funciones del programa es necesario instalar los paquetes `curl` y `jq`.
 Al ejecutar el comando en concreto te dirá si tienes o no instalado el paquete necesario, y te preguntará si quieres instalarlo en tu sistema.
