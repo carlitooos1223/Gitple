@@ -1,5 +1,6 @@
-# Gitple
-Programa para el control de tu repositorio de GitHub.
+# Gitple - Gestor de repositorios de Git
+## 🔹 Descripción
+Gitple es una herramienta en **Bash** diseñada para simplificar la gestión de proyectos Github.
 
 ## 🔹 Instalación
 Ejecuta el siguiente comando para descargar el archivo `.deb` de **gitple** desde GitHub:
