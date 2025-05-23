@@ -14,3 +14,8 @@ Para ejecutar el paquete de **gitple** ejecuta lo siguiente:
 ```bash
 sudo dpkg -i gitple.deb
 ```
+
+## 🔹 Uso
+Para utilizar el programa será tan facíl como: `gitple <command>`
+
+En caso de necesitar ayuda con algún comando utilice la flag `-h` | `--help`
