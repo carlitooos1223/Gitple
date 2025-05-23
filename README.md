@@ -1,6 +1,6 @@
 # Gitple - Gestor de repositorios de Git
 ## 🔹 Descripción
-Gitple es una herramienta en **Bash** diseñada para simplificar la gestión de proyectos Github.
+Gitple es una herramienta en **Bash** diseñada para simplificar la gestión de proyectos Github. <br>
 Con este programa te será más fácil la organización de tu repositorio, funciones como creador de plantillas, generador de CHANGELOG automático, commits automáticos generados con IA, entre más funciones que puedes utilizar.
 
 ## 🔹 Instalación
