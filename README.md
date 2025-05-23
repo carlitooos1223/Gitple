@@ -15,7 +15,12 @@ Para ejecutar el paquete de **gitple** ejecuta lo siguiente:
 sudo dpkg -i gitple.deb
 ```
 
-## 🔹 Uso
+## 🔹 Uso de Gitple
+Gitple solo se podrá utilzar en repositorios de git, y para iniciar la aplicación en un repositorio nuevo deberá utilizar:
+``` bash
+gitple start
+````
+
 Para utilizar el programa será tan facíl como: `gitple <command>`
 
 En caso de necesitar ayuda con algún comando utilice la flag `-h` | `--help`
