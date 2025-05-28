@@ -16,7 +16,7 @@ sudo dpkg -i gitple.deb
 ```
 
 ## 🔹 Uso de Gitple
-Gitple solo se podrá utilzar en repositorios de git, y para iniciar la aplicación en un repositorio nuevo deberá utilizar:
+Gitple solo se podrá utilizar en repositorios de git, y para iniciar la aplicación en un repositorio nuevo deberá utilizar:
 ``` bash
 gitple start
 ````
