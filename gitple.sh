@@ -88,7 +88,8 @@ options() {
               read -p "Token de Git: " token
 
               # ENVIROMENT VARIABLES
-              touch "$HOME/.gitple/gitple_config_$project_name"
+              mkdir -p $HOME/.gitple
+              touch $HOME/.gitple/gitple_config_$project_name
               config_file="$HOME/.gitple/gitple_config_$project_name"
 
               echo "GITHUB_OWNER=$project_owner" > "$config_file"
@@ -923,7 +924,7 @@ semantic_release() {
 # Configuración de las variables de entorno
 configure_env() {
   nombre=$(basename "$PWD")
-  inicio=$(find / -name ".gitple_config_$nombre" | wc -l)
+  inicio=$(find $HOME -name "gitple_config_$nombre" | wc -l)
 
   if [ $inicio -eq 1 ]; then
     source "$HOME/.gitple/gitple_config_$nombre"
