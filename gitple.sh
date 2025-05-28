@@ -541,7 +541,7 @@ version() {
     echo "Actualmente tu aplicación no tiene ninguna versión disponible"
     echo "Para crear una nueva versión ejecute: gitple new-version"
   else
-    echo -e "${GREEN}La versión más reciente encontrada es:${RESET}
+    echo -e "${GREEN}La versión más reciente encontrada es:${RESET}"
     cat info/last_version.txt
   fi
 }
