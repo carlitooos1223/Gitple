@@ -925,7 +925,7 @@ semantic_release() {
 }
 
 # Configuración de las variables de entorno
-configure_envh() {
+configure_env() {
   nombre=$(basename "$PWD")
   inicio=$(find $HOME -name "gitple_config_$nombre" | wc -l)
 
