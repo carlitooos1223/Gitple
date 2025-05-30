@@ -238,6 +238,9 @@ options() {
             exit
             ;;
           show)
+            if [ ! -d $HOME/.gitple/templates ]; then
+              mkdir -p "$HOME/.gitple/templates/$new_template"
+            fi
             ls_template=$(ls $HOME/.gitple/templates/ | wc -l)
 
             templates=()
@@ -540,7 +543,7 @@ delete-branch() {
 version() {
   if [ ! -f info/last_version.txt ]; then
     echo "Actualmente tu aplicación no tiene ninguna versión disponible"
-    echo "Para crear una nueva versión ejecute: gitple new-version"
+    echo "Para crear una nueva versión ejecute: gitple version new"
   else
     echo -e "${GREEN}La versión más reciente encontrada es:${RESET}"
     cat info/last_version.txt
@@ -922,7 +925,7 @@ semantic_release() {
 }
 
 # Configuración de las variables de entorno
-configure_env() {
+configure_envh() {
   nombre=$(basename "$PWD")
   inicio=$(find $HOME -name "gitple_config_$nombre" | wc -l)
 
