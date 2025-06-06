@@ -1,4 +1,12 @@
 #! /bin/bash
+# ---------------------------------------------------------------
+# Script desarrollado como parte del Trabajo de Fin de Grado (TFG)
+# Título del proyecto: Gitple
+# Autor: Carlos Rueda Guzmán
+#
+# Este archivo forma parte para la evaluación
+# del TFG y hecho con fines académicos.
+# ---------------------------------------------------------------
 
 # COLORS
 BLUE="\e[34m"
