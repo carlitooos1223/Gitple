@@ -345,6 +345,11 @@ options() {
               echo -e "\n${BLUE}Dependencias:${RESET}"
               review-dependencies
               exit
+
+              echo -e "\n${BLUE}Seguridad: ${RESET}"
+              review_security
+              exit
+
             else
               echo "Comando desconocido: $1" >&2
               help-review
@@ -578,33 +583,144 @@ check_files() {
 
 review-dependencies() {
   no_dependencias=0
+  dependencias=()
 
-  if [ ! -f "requirements.txt" ]; then
-    no_dependencias=$((no_dependencias+1))
+  if [ -f "requirements.txt" ]; then
+    dependencias+=("python")
   else
-    dependencia="python"
-  fi
-  if [ ! -f "package.json" ]; then
     no_dependencias=$((no_dependencias+1))
-  else
-    dependencia="nodejs"
   fi
-  if [ ! -f composer.json ]; then
+
+  if [ -f "package.json" ]; then
+    dependencias+=("nodejs")
+  else
     no_dependencias=$((no_dependencias+1))
-  else
-    dependencia="php"
   fi
+
+  if [ -f "composer.json" ]; then
+    dependencias+=("php")
+  else
+    no_dependencias=$((no_dependencias+1))
+  fi
+
   if [ $no_dependencias -eq 3 ]; then
     echo -e "Tu proyecto no necesita dependencias ${GREEN}CORRECTO${RESET}"
   else
-    if [[ "$dependencia" == "python" ]]; then
-      python_dependencia
-    elif [[ "$dependencia" == "nodejs" ]]; then
-      nodejs_dependencia
-    elif [[ "$dependencia" == "php" ]]; then
-      php_dependencia
-    fi
+    for dependencia in "${dependencias[@]}"; do
+      case "$dependencia" in
+        python)
+          python_dependencia
+          ;;
+        nodejs)
+          nodejs_dependencia
+          ;;
+        php)
+          php_dependencia
+          ;;
+      esac
+    done
   fi
+}
+
+declare -A dependencias_python
+
+python_dependencia() {
+  while read -r paquete version_instalada version_disponible; do
+    dependencias_python["$paquete"]="$version_instalada:$version_disponible"
+  done < <(pip list --outdated --format=columns | awk 'NR>1 {print $1, $2, $3}')
+
+  resultado_python="Dependencias desactualizadas:\n"
+  
+  for paquete in "${!dependencias_python[@]}"; do
+    version_instalada=$(echo "${dependencias_python[$paquete]}" | cut -d':' -f1)
+    version_disponible=$(echo "${dependencias_python[$paquete]}" | cut -d':' -f2)
+    resultado_python+="$paquete: versión instalada $version_instalada, última versión disponible $version_disponible\n"
+  done
+  
+  if [ -z "$resultado_python" ]; then
+    echo -e "Todas las dependencias de Python están actualizadas ${GREEN}CORRECTO${RESET}"
+  else
+    echo -e "$resultado_python"
+  fi
+
+}
+
+declare -A dependencias_nodejs
+
+nodejs_dependencia() {
+  while read -r paquete version_instalada version_disponible _; do
+    dependencias_nodejs["$paquete"]="$version_instalada:$version_disponible"
+  done < <(npm outdated --parseable | awk -F':' '{print $2, $3, $4}')
+
+  resultado_nodejs="Dependencias desactualizadas:\n"
+
+  for paquete in "${!dependencias_nodejs[@]}"; do
+    version_instalada=$(echo "${dependencias_nodejs[$paquete]}" | cut -d':' -f1)
+    version_disponible=$(echo "${dependencias_nodejs[$paquete]}" | cut -d':' -f2)
+    resultado_nodejs+="$paquete: versión instalada $version_instalada, última versión disponible $version_disponible\n"
+  done
+
+  if [ -z "$resultado_nodejs" ]; then
+    echo -e "Todas las dependencias de Node.js están actualizadas ${GREEN}CORRECTO${RESET}"
+  else
+    echo -e "$resultado_nodejs"
+  fi
+
+}
+
+declare -A dependencias_php
+
+php_dependencia() {
+  while read -r paquete version_instalada version_disponible; do
+    dependencias_php["$paquete"]="$version_instalada:$version_disponible"
+  done < <(composer outdated --format=json | jq -r '.installed[] | "\(.name) \(.version) \(.latest)"')
+
+  resultado_php="Dependencias desactualizadas:\n"
+
+  for paquete in "${!dependencias_php[@]}"; do
+    version_instalada=$(echo "${dependencias_php[$paquete]}" | cut -d':' -f1)
+    version_disponible=$(echo "${dependencias_php[$paquete]}" | cut -d':' -f2)
+    resultado_php+="$paquete: versión instalada $version_instalada, última versión disponible $version_disponible\n"
+  done
+
+  if [ -z "$resultado_php" ]; then
+    echo -e "Todas las dependencias de PHP están actualizadas ${GREEN}CORRECTO${RESET}"
+  else
+    echo -e "$resultado_php"
+  fi  
+}
+
+review_security() {
+  check_sensitive_info() {
+  echo "Analizando el repositorio en busca de información sensible..."
+
+  patrones=("password=" "api_key=" "secret=" "ACCESS_KEY=" "PRIVATE_KEY=")
+
+  regex_hash="([a-fA-F0-9]{32}|[a-fA-F0-9]{40}|[a-fA-F0-9]{64})" 
+
+  archivos_detectados=()
+
+  while IFS= read -r archivo; do
+    for patron in "${patrones[@]}"; do
+      if grep -i "$patron" "$archivo" &>/dev/null; then
+        valor=$(grep -i "$patron" "$archivo" | awk -F'=' '{print $2}')
+        
+        if [[ $valor =~ $regex_hash ]]; then
+          archivos_detectados+=("$archivo: posible credencial protegida ('$patron' parece un hash)")
+        else
+          archivos_detectados+=("$archivo: posible credencial expuesta ('$patron' en texto plano)")
+        fi
+      fi
+    done
+  done < <(find . -type f -not -path '*/.*')
+
+  if [ ${#archivos_detectados[@]} -eq 0 ]; then
+    echo "No se detectó información sensible." ${GREEN}"CORRECTO"${RESET}
+  else
+    echo ${archivos_detectados[@]}
+  fi
+}
+
 }
 
 check_dependencies() {
