@@ -691,7 +691,6 @@ php_dependencia() {
 }
 
 review_security() {
-  check_sensitive_info() {
   echo "Analizando el repositorio en busca de información sensible..."
 
   patrones=("password=" "api_key=" "secret=" "ACCESS_KEY=" "PRIVATE_KEY=")
@@ -719,8 +718,6 @@ review_security() {
   else
     echo ${archivos_detectados[@]}
   fi
-}
-
 }
 
 check_dependencies() {
