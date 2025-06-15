@@ -734,10 +734,10 @@ read_commit_messages() {
     range="${from}..HEAD"
   fi
 
-  while IFS=$'\x1f' read -r -d $'\x1e' commit; do
+  while IFS=$'\x1f' read -r -d $'\x1e' commit_id commit; do
     commit=${commit%%$'\n'}
     commit=${commit##$'\n'} 
-    commit_messages+=("${commit}")
+    commit_messages+=("${commit} ${commit_id}")
   done < <(git log --pretty=format:'%h%x1f%B%x1e' "$range")
 }
 
@@ -1011,7 +1011,7 @@ semantic_release() {
     else
       create_tag
       touch .gitignore
-      echo .info/ > .gitignore
+      echo .info > .gitignore
       git add .
       git commit -m "Actualizar CHANGELOG"
       git push origin main
