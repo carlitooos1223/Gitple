@@ -125,7 +125,8 @@ options() {
           *)
             if [ -z $2 ]; then
               echo "Creando commit..."
-              exit
+              generate_commit_message
+             exit
             else
               echo "Comando desconocido: $2" >&2
               help-commit
@@ -550,13 +551,29 @@ delete-branch() {
     exit
 }
 
+generate_commit_message() {
+  local response commit_msg diff_output
+
+  git add .
+
+  diff_output=$(git diff --cached --unified=0)
+  response=$(curl -s -X POST "https://commit-proxy.onrender.com/generate-commit" \
+    -H "Content-Type: application/json" \
+    -d "$(jq -n --arg diff "$diff_output" '{diff: $diff}')")
+
+  commit_msg=$(echo "$response" | jq -r '.message')
+
+  git commit -m "$commit_msg"
+  echo "$commit_msg"
+}
+
 version() {
-  if [ ! -f info/last_version.txt ]; then
+  if [ ! -f .info/last_version.txt ]; then
     echo "Actualmente tu aplicación no tiene ninguna versión disponible"
     echo "Para crear una nueva versión ejecute: gitple version new"
   else
     echo -e "${GREEN}La versión más reciente encontrada es:${RESET}"
-    cat info/last_version.txt
+    cat .info/last_version.txt
   fi
 }
 
@@ -813,7 +830,7 @@ analyze_commit_messages() {
   for commit_message in "$@" ; do
     commit_id=$(echo $commit_message | cut -d' ' -f2)
     commit=$(echo $commit_message | cut -d' ' -f1-)
-    append_changelog "$commit" $commit_id
+    append_changelog "$commit"
     update_bump_type "$commit_message"
   done
 }
@@ -942,9 +959,10 @@ get_versions() {
 semantic_release() {
   check_dependencies git curl
   find_last_release_tag
-  read_commit_messages "$last_release_tag"
-  analyze_commit_messages "${commit_messages[@]}"
 
+  git push origin $version > /dev/null 2>&1
+  read_commit_messages "$last_release_tag" 
+  analyze_commit_messages "${commit_messages[@]}"
   if [[ "$bump_type" -eq "$NO_BUMP" ]]; then
     echo "No changes since last release" >&2 
     return
@@ -959,25 +977,25 @@ semantic_release() {
     date=$(date "+%Y-%m-%d")
 
     # Create necessary files
-    if [ ! -d "info" ]; then
-      mkdir info
+    if [ ! -d ".info" ]; then
+      mkdir .info
     fi
-    touch info/app_version.txt
-    touch info/last_version.txt
-    touch info/new_version.txt
-    touch info/title.txt
+    touch .info/app_version.txt
+    touch .info/last_version.txt
+    touch .info/new_version.txt
+    touch .info/title.txt
 
     url_versiones="https://github.com/$GITHUB_OWNER/$GITHUB_REPO/tree"
 
     # Create the changelog
-    echo -e "# CHANGELOG \nAll notable changes to this project will be documented in this file." > info/title.txt
-    echo -e "## [$version]($url_versiones/$version) - $date\n" | tee info/new_version.txt
-    echo -e "$(echo -e "$release_notes")" | tee -a info/new_version.txt
+    echo -e "# CHANGELOG \nAll notable changes to this project will be documented in this file." > .info/title.txt
+    echo -e "## [$version]($url_versiones/$version) - $date\n" | tee .info/new_version.txt
+    echo -e "$(echo -e "$release_notes")" | tee -a .info/new_version.txt
 
-    cat info/new_version.txt info/app_version.txt > temp && mv temp info/app_version.txt 
-    cat info/title.txt info/app_version.txt > CHANGELOG.md
+    cat .info/new_version.txt .info/app_version.txt > temp && mv temp .info/app_version.txt 
+    cat .info/title.txt .info/app_version.txt > CHANGELOG.md
 
-    echo $version > info/last_version.txt
+    echo $version > .info/last_version.txt
 
     # Create the new tag in the local repository
     if ! git tag | grep "^$version" ; then
@@ -986,7 +1004,6 @@ semantic_release() {
     else
       echo "Tag $version ya existe, no se hace nada"; 
     fi
-
     bump_version "$bump_type" "$last_release_tag"
 
     if [[ "$dry_run" -eq 1 ]]; then
