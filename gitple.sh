@@ -1,6 +1,6 @@
 #! /bin/bash
 # ---------------------------------------------------------------
-# Script desarrollado como parte del Trabajo de Fin de Grado (TFG)
+# Programa desarrollado como parte del Trabajo de Fin de Grado (TFG)
 # Título del proyecto: Gitple
 # Autor: Carlos Rueda Guzmán
 #
@@ -344,7 +344,6 @@ options() {
 
               echo -e "\n${BLUE}Dependencias:${RESET}"
               review-dependencies
-              exit
 
               echo -e "\n${BLUE}Seguridad: ${RESET}"
               review_security
@@ -439,7 +438,7 @@ help-version() {
 
 }
 
-help-review () {
+help-review() {
   echo -e "
   Muestra el estado de tu aplicación.
 
@@ -451,9 +450,7 @@ help-review () {
     ${BLUE}Description: Chequea si tienes 3 de los archivos más esenciales para tu proyecto.${RESET}
 
   Available dependencies:
-    ${GREEN}requirements.txt${RESET}              Dependencias de Python
     ${GREEN}package.json${RESET}                  Dependencias de Nodejs
-    ${GREEN}commposer.json${RESET}                Dependencias de PHP
 
     ${BLUE}Description: Hace un chequeo para ver si tu proyecto tiene las dependencias actualizadas.${RESET}
   
@@ -622,29 +619,6 @@ review-dependencies() {
   fi
 }
 
-declare -A dependencias_python
-
-python_dependencia() {
-  while read -r paquete version_instalada version_disponible; do
-    dependencias_python["$paquete"]="$version_instalada:$version_disponible"
-  done < <(pip list --outdated --format=columns | awk 'NR>1 {print $1, $2, $3}')
-
-  resultado_python="Dependencias desactualizadas:\n"
-  
-  for paquete in "${!dependencias_python[@]}"; do
-    version_instalada=$(echo "${dependencias_python[$paquete]}" | cut -d':' -f1)
-    version_disponible=$(echo "${dependencias_python[$paquete]}" | cut -d':' -f2)
-    resultado_python+="$paquete: versión instalada $version_instalada, última versión disponible $version_disponible\n"
-  done
-  
-  if [ -z "$resultado_python" ]; then
-    echo -e "Todas las dependencias de Python están actualizadas ${GREEN}CORRECTO${RESET}"
-  else
-    echo -e "$resultado_python"
-  fi
-
-}
-
 declare -A dependencias_nodejs
 
 nodejs_dependencia() {
@@ -657,7 +631,7 @@ nodejs_dependencia() {
   for paquete in "${!dependencias_nodejs[@]}"; do
     version_instalada=$(echo "${dependencias_nodejs[$paquete]}" | cut -d':' -f1)
     version_disponible=$(echo "${dependencias_nodejs[$paquete]}" | cut -d':' -f2)
-    resultado_nodejs+="$paquete: versión instalada $version_instalada, última versión disponible $version_disponible\n"
+    resultado_nodejs+="$paquete: última versión disponible $version_disponible\n"
   done
 
   if [ -z "$resultado_nodejs" ]; then
@@ -666,28 +640,6 @@ nodejs_dependencia() {
     echo -e "$resultado_nodejs"
   fi
 
-}
-
-declare -A dependencias_php
-
-php_dependencia() {
-  while read -r paquete version_instalada version_disponible; do
-    dependencias_php["$paquete"]="$version_instalada:$version_disponible"
-  done < <(composer outdated --format=json | jq -r '.installed[] | "\(.name) \(.version) \(.latest)"')
-
-  resultado_php="Dependencias desactualizadas:\n"
-
-  for paquete in "${!dependencias_php[@]}"; do
-    version_instalada=$(echo "${dependencias_php[$paquete]}" | cut -d':' -f1)
-    version_disponible=$(echo "${dependencias_php[$paquete]}" | cut -d':' -f2)
-    resultado_php+="$paquete: versión instalada $version_instalada, última versión disponible $version_disponible\n"
-  done
-
-  if [ -z "$resultado_php" ]; then
-    echo -e "Todas las dependencias de PHP están actualizadas ${GREEN}CORRECTO${RESET}"
-  else
-    echo -e "$resultado_php"
-  fi  
 }
 
 review_security() {
@@ -703,7 +655,7 @@ review_security() {
     for patron in "${patrones[@]}"; do
       if grep -i "$patron" "$archivo" &>/dev/null; then
         valor=$(grep -i "$patron" "$archivo" | awk -F'=' '{print $2}')
-        
+
         if [[ $valor =~ $regex_hash ]]; then
           archivos_detectados+=("$archivo: posible credencial protegida ('$patron' parece un hash)")
         else
@@ -711,10 +663,10 @@ review_security() {
         fi
       fi
     done
-  done < <(find . -type f -not -path '*/.*')
+  done < <(find . -type f -not -path './.*' -not -path './node_modules/*')
 
   if [ ${#archivos_detectados[@]} -eq 0 ]; then
-    echo "No se detectó información sensible." ${GREEN}"CORRECTO"${RESET}
+    echo -e "No se detectó información sensible. ${GREEN}CORRECTO${RESET}"
   else
     echo ${archivos_detectados[@]}
   fi
