@@ -12,7 +12,7 @@ wget https://github.com/carlitooos1223/Gitple/releases/download/v1.0.0/Gitple.de
 
 Para ejecutar el paquete de **gitple** ejecuta lo siguiente:
 ```bash
-sudo dpkg -i gitple.deb
+sudo dpkg -i Gitple.deb
 ```
 
 ## 🔹 Uso de Gitple
