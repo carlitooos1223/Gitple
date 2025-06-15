@@ -1010,6 +1010,9 @@ semantic_release() {
       echo "Dry run. Tag not created."
     else
       create_tag
+      touch .gitignore
+      echo .info > .gitignore
+      git push origin main
     fi
   fi
 }
