@@ -7,7 +7,7 @@ Con este programa te será más fácil la organización de tu repositorio, funci
 ## 🔹 Instalación
 Ejecuta el siguiente comando para descargar el archivo `.deb` de **gitple** desde GitHub:
 ```bash
-wget https://github.com/carlitooos1223/gitple/releases/download/v1.0/gitple.deb
+wget https://github.com/carlitooos1223/Gitple/releases/download/v1.0.0/Gitple.deb
 ```
 
 Para ejecutar el paquete de **gitple** ejecuta lo siguiente:
