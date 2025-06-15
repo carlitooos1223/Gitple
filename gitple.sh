@@ -964,7 +964,7 @@ semantic_release() {
   read_commit_messages "$last_release_tag" 
   analyze_commit_messages "${commit_messages[@]}"
   if [[ "$bump_type" -eq "$NO_BUMP" ]]; then
-    echo "No changes since last release" >&2 
+    echo "No hay nuevos cambios" >&2 
     return
   else
     if [[ -z "$last_release_tag" ]]; then
@@ -978,7 +978,7 @@ semantic_release() {
 
     # Create necessary files
     if [ ! -d ".info" ]; then
-      mkdir .info
+      mkdir .info 
     fi
     touch .info/app_version.txt
     touch .info/last_version.txt
@@ -1012,6 +1012,8 @@ semantic_release() {
       create_tag
       touch .gitignore
       echo .info > .gitignore
+      git add .
+      git commit -m "Actualizar CHANGELOG"
       git push origin main
     fi
   fi
