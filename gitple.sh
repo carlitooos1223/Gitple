@@ -256,7 +256,7 @@ options() {
             show_templates=$(ls $HOME/.gitple/templates/)
 
             if [ $ls_template -eq 0 ]; then
-              echo "${RED}Actualmente no tienes ninguna plantilla creada${RESET}"
+              echo -e "${RED}Actualmente no tienes ninguna plantilla creada${RESET}"
               echo -e "Para crear una nueva utilice: ${BLUE}gitple template new${RESET}"
             else
               for template in $show_templates; do
@@ -276,14 +276,14 @@ options() {
               echo -e "Debes añadir el nombre de la plantilla que quieras utilizar"
               echo -e "Para listar tus plantillas utilice: ${BLUE}gitple template show${RESET}"
               echo
-              echo -e "${BLUE}Usage: gitple use [nombre de la plantilla]"
+              echo -e "${BLUE}Usage: gitple use [nombre de la plantilla]${RESET}"
             else
               if [ -d $HOME/.gitple/templates/$template ]; then
                 read -p "Nombre del nuevo repositorio: " new_repo
                 cp -r $HOME/.gitple/templates/$template/ ../$new_repo
-                echo -e "Se ha creado el repositorio: ${BLUE}$new_repo${RESET} con la plantilla: ${BLUE}use_template${RESET}"
+                echo -e "Se ha creado el repositorio: ${BLUE}$new_repo${RESET} con la plantilla: ${BLUE}$template${RESET}"
               else
-                echo "La plantilla $template no existe"
+                echo -e "La plantilla $template no existe"
                 echo -e "Si quieres crear una nueva plantilla utilice: ${BLUE}gitple template new${RESET}"
               fi
             fi
